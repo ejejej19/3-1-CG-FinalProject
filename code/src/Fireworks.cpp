@@ -1,5 +1,5 @@
 #include "Fireworks.h"
-#include "ParticleRenderer.h"
+#include "BillboardRenderer.h"
 #include <algorithm>
 #include <GLFW/glfw3.h>
 #include <random>
@@ -12,10 +12,11 @@ void Fireworks::launch() {
   Particle test;
   float vMin = 10.0f;
   float vMax = 15.0f;
-  float xMin = -20.0f;
+  // 煙花發射位置 - 在山前面（山在 z=-50 以北），右移5.0f
+  float xMin = -10.0f;
   float xMax = 20.0f;
-  float zMin = -40.0f;
-  float zMax = -20.0f;
+  float zMin = -40.0f;  // 山前面
+  float zMax = -15.0f;  // 不要太靠近相機
   double random_fraction_x = static_cast<double>(std::rand()) / RAND_MAX;
   double random_fraction_z = static_cast<double>(std::rand()) / RAND_MAX;
   double random_fraction_v = static_cast<double>(std::rand()) / RAND_MAX;
@@ -23,7 +24,7 @@ void Fireworks::launch() {
   float zCoord = zMin + random_fraction_z * (zMax - zMin);
   float velocity = vMin + random_fraction_v * (vMax - vMin);
   test.initialize(
-    glm::vec3(xCoord, -5.0f, zCoord),
+    glm::vec3(xCoord, 0.0f, zCoord),  // 從水面高度發射
     glm::vec3(0.0f, 1.0f, 0.0f),
     glm::vec3(0.0f, velocity, 0.0f),
     glm::vec3(1.0f, 1.0f, 1.0f),

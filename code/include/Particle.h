@@ -28,6 +28,7 @@ public:
     
     glm::vec3 getPosition() const { return loc; }
     glm::vec3 getColor() const { return color; }
+    glm::vec3 getVelocity() const { return v; }  // Phase 4: 速度對齊用
     
     float getTransparency() const {return transparency; }
     float getTTL() const {return ttl; }

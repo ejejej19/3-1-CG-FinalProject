@@ -1,12 +1,13 @@
 #include "Camera.h"
 #include <glm/gtc/matrix_transform.hpp>
 
-glm::vec3 Camera::position = glm::vec3(0.0f, 0.25f, 1.0f);
-glm::vec3 Camera::front = glm::vec3(0.0f, 0.0f, -1.0f);
+// 湖邊場景 - 攝影機靠近湖岸，大天空小場景
+glm::vec3 Camera::position = glm::vec3(35.0f, 2.0f, 35.0f);  // 靠近湖面，低視角
+glm::vec3 Camera::front = glm::vec3(-0.7f, 0.0f, -0.7f);     // 望向湖面中心
 glm::vec3 Camera::up = glm::vec3(0.0f, 1.0f, 0.0f);
 
-float Camera::yaw = -90.0f; // 初始偏航角
-float Camera::pitch = 0.0f; // 初始俯仰角
+float Camera::yaw = -135.0f;  // 偏航角望向湖面
+float Camera::pitch = 5.0f;   // 稍微仰視，看到更多天空
 
 glm::mat4 Camera::getViewMatrix() {
     return glm::lookAt(position, position + front, up);

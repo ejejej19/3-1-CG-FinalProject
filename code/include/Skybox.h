@@ -10,12 +10,17 @@
 class Skybox {
 public:
     void initialize();
-    void render(const glm::mat4& view, const glm::mat4& projection);
+    void render(const glm::mat4& view, const glm::mat4& projection, float exposure);
+    
+    void bindCubemap(int unit) const;
+    GLuint getCubemapTexture() const { return cubemapTexture; }
 
 private:
-    GLuint skyboxVAO, skyboxVBO, cubemapTexture;
+    GLuint skyboxVAO, skyboxVBO, skyboxEBO;  // 加入 EBO
+    GLuint cubemapTexture = 0;
     GLuint shaderProgram;
     float skybox_size;
+    int indexCount;  // 球體索引數量
 
     std::vector<std::string> faces = {
         "../../static/skybox_textures/right.png",

@@ -3,80 +3,98 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
-
 void Skybox::initialize() {
-    skybox_size = 60.0;
-    float skyboxVertices[] = {      
-    -skybox_size,  skybox_size, -skybox_size,
-    -skybox_size, -skybox_size, -skybox_size,
-    skybox_size, -skybox_size, -skybox_size,
-    skybox_size, -skybox_size, -skybox_size,
-    skybox_size,  skybox_size, -skybox_size,
-    -skybox_size,  skybox_size, -skybox_size,
-
-    -skybox_size, -skybox_size,  skybox_size,
-    -skybox_size, -skybox_size, -skybox_size,
-    -skybox_size,  skybox_size, -skybox_size,
-    -skybox_size,  skybox_size, -skybox_size,
-    -skybox_size,  skybox_size,  skybox_size,
-    -skybox_size, -skybox_size,  skybox_size,
-
-     skybox_size, -skybox_size, -skybox_size,
-     skybox_size, -skybox_size,  skybox_size,
-     skybox_size,  skybox_size,  skybox_size,
-     skybox_size,  skybox_size,  skybox_size,
-     skybox_size,  skybox_size, -skybox_size,
-     skybox_size, -skybox_size, -skybox_size,
-
-    -skybox_size, -skybox_size,  skybox_size,
-    -skybox_size,  skybox_size,  skybox_size,
-     skybox_size,  skybox_size,  skybox_size,
-     skybox_size,  skybox_size,  skybox_size,
-     skybox_size, -skybox_size,  skybox_size,
-    -skybox_size, -skybox_size,  skybox_size,
-
-    -skybox_size,  skybox_size, -skybox_size,
-     skybox_size,  skybox_size, -skybox_size,
-     skybox_size,  skybox_size,  skybox_size,
-     skybox_size,  skybox_size,  skybox_size,
-    -skybox_size,  skybox_size,  skybox_size,
-    -skybox_size,  skybox_size, -skybox_size,
-
-    -skybox_size, -skybox_size, -skybox_size,
-    -skybox_size, -skybox_size,  skybox_size,
-     skybox_size, -skybox_size, -skybox_size,
-     skybox_size, -skybox_size, -skybox_size,
-    -skybox_size, -skybox_size,  skybox_size,
-     skybox_size, -skybox_size,  skybox_size
-};
-
+    // 球型 Skybox - 更大的尺寸避免切到場景
+    skybox_size = 500.0f;  // 增大到 500
+    
+    // 生成球體網格
+    const int stacks = 32;  // 緯度分段
+    const int slices = 64;  // 經度分段
+    
+    std::vector<float> vertices;
+    std::vector<unsigned int> indices;
+    
+    // 生成球體頂點
+    for (int i = 0; i <= stacks; ++i) {
+        float phi = M_PI * float(i) / float(stacks);  // 0 到 π
+        float y = cos(phi) * skybox_size;
+        float r = sin(phi) * skybox_size;
+        
+        for (int j = 0; j <= slices; ++j) {
+            float theta = 2.0f * M_PI * float(j) / float(slices);  // 0 到 2π
+            float x = r * cos(theta);
+            float z = r * sin(theta);
+            
+            vertices.push_back(x);
+            vertices.push_back(y);
+            vertices.push_back(z);
+        }
+    }
+    
+    // 生成索引
+    for (int i = 0; i < stacks; ++i) {
+        for (int j = 0; j < slices; ++j) {
+            int first = i * (slices + 1) + j;
+            int second = first + slices + 1;
+            
+            // 第一個三角形
+            indices.push_back(first);
+            indices.push_back(second);
+            indices.push_back(first + 1);
+            
+            // 第二個三角形
+            indices.push_back(second);
+            indices.push_back(second + 1);
+            indices.push_back(first + 1);
+        }
+    }
+    
+    indexCount = indices.size();
+    
     glGenVertexArrays(1, &skyboxVAO);
     glGenBuffers(1, &skyboxVBO);
+    glGenBuffers(1, &skyboxEBO);
+    
     glBindVertexArray(skyboxVAO);
+    
     glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, skyboxEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+    
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    
+    glBindVertexArray(0);
 
     cubemapTexture = loadCubemap(faces);
     shaderProgram = loadShader("../shaders/skybox.vert", "../shaders/skybox.frag");
 }
 
-void Skybox::render(const glm::mat4& view, const glm::mat4& projection) {
+void Skybox::render(const glm::mat4& view, const glm::mat4& projection, float exposure) {
     glDepthFunc(GL_LEQUAL);
     glUseProgram(shaderProgram);
+
+    glUniform1f(glGetUniformLocation(shaderProgram, "skyExposure"), exposure);
+
     glm::mat4 skyboxView = glm::mat4(glm::mat3(view)); // remove translation
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(skyboxView));
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     glBindVertexArray(skyboxVAO);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);  // 改用 DrawElements
     glBindVertexArray(0);
     glDepthFunc(GL_LESS);
+}
+
+void Skybox::bindCubemap(int unit) const {
+    glActiveTexture(GL_TEXTURE0 + unit);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
 }
 
 GLuint Skybox::loadCubemap(const std::vector<std::string>& faces) {
@@ -88,7 +106,8 @@ GLuint Skybox::loadCubemap(const std::vector<std::string>& faces) {
     for (GLuint i = 0; i < faces.size(); i++) {
         unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
         if (data) {
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
             stbi_image_free(data);
         } else {
             std::cerr << "Cubemap texture failed to load at path: " << faces[i] << std::endl;

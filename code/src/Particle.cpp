@@ -30,13 +30,16 @@ void Particle::initialize(
 
 
 void Particle::update(float deltaTime, std::vector<Particle>& newParticles, std::vector<Light>& lights) {
-    if(!is_tail){  // 在原地添加一个粒子实现拖尾
+    if(!is_tail){  // 在原地添加一个粒子實現拖尾
         Particle tail;
-        tail.initialize(loc, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), color, transparency-0.2f, 3.0f, true, true, glm::vec3(0.0f, 0.0f, 0.0f));
+        tail.initialize(loc, glm::vec3(0.0f, 0.0f, 0.0f), 
+                        glm::vec3(0.0f, 0.0f, 0.0f), color, 
+                        transparency-0.2f, 3.0f, true, true, 
+                        glm::vec3(0.0f, 0.0f, 0.0f));
         newParticles.push_back(tail);
 
-        // 更新当前粒子属性
-        float k; // 空气阻力系数
+        // 更新當前粒子属性
+        float k; // 空氣阻力系數
         if(!is_boomed){
             k = -0.2;
             a = v * k + glm::vec3(0.0f,-2.0f, 0.0f);
@@ -46,14 +49,11 @@ void Particle::update(float deltaTime, std::vector<Particle>& newParticles, std:
             a = v * k + glm::vec3(0.0f,-0.5f, 0.0f);
         } 
             
-        v += a * deltaTime;
+        v += a * deltaTime * 0.9f;
         loc += v * deltaTime;
 
         if (!is_boomed) {
             if (v.y < 0.5f) {
-                explosionSound[explosion_index].play();
-                explosion_index = (explosion_index + 1) % MAX_SOUNDS;
-
                 is_boomed = true;
                 this->recycle = true;
 
@@ -61,7 +61,7 @@ void Particle::update(float deltaTime, std::vector<Particle>& newParticles, std:
                 explosionLight.position = loc;
                 explosionLight.color = color;
                 explosionLight.intensity = 600.0f; // 初始强度
-                explosionLight.ttl = 5.0f;       // 持续时间（秒）
+                explosionLight.ttl = 5.0f;       // 持續時間（秒）
                 lights.push_back(explosionLight);
 
                 switch (pattern) {
@@ -103,7 +103,6 @@ void Particle::update(float deltaTime, std::vector<Particle>& newParticles, std:
                             (rand() % 200 - 100) / 100.0f
                         ));
                         glm::vec3 velocity = dir * 5.0f;
-                        // glm::vec3 color = getRandomColor();
                         Particle p;
                         p.initialize(loc, dir, velocity, color1, 1.0f, 5.0f, true, false, glm::vec3(0.0f,-0.981f, 0.0f));
                         newParticles.push_back(p);
@@ -115,22 +114,22 @@ void Particle::update(float deltaTime, std::vector<Particle>& newParticles, std:
                             (rand() % 200 - 100) / 100.0f
                         ));
                         glm::vec3 velocity = dir * 3.0f;
-                        // glm::vec3 color = getRandomColor();
                         Particle p;
-                        p.initialize(loc, dir, velocity, color2, 1.0f, 5.0f, true, false, glm::vec3(0.0f,-0.981f, 0.0f));
+                        p.initialize(loc, dir, velocity, color2, 1.0f, 5.0f, 
+                                    true, false, glm::vec3(0.0f,-0.981f, 0.0f));
                         newParticles.push_back(p);
                     }
                     Light explosionLight1;
                     explosionLight1.position = loc;
                     explosionLight1.color = color1;
                     explosionLight1.intensity = 500.0f; // 初始强度
-                    explosionLight1.ttl = 5.0f;       // 持续时间（秒）
+                    explosionLight1.ttl = 5.0f;       // 持續時間（秒）
 
                     Light explosionLight2;
                     explosionLight2.position = loc;
                     explosionLight2.color = color2;
                     explosionLight2.intensity = 500.0f; // 初始强度
-                    explosionLight2.ttl = 5.0f;       // 持续时间（秒）
+                    explosionLight2.ttl = 5.0f;       // 持續時間（秒）
 
                     lights.push_back(explosionLight1);
                     lights.push_back(explosionLight2);
@@ -147,7 +146,6 @@ void Particle::update(float deltaTime, std::vector<Particle>& newParticles, std:
         transparency = std::max(0.0f, transparency - 1.5f * deltaTime);
     }
 }
-
 
 bool Particle::check_recycle() const {
     return ttl <= 0.0f || recycle == true || transparency <= 0.0f;

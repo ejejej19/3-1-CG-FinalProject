@@ -1,5 +1,5 @@
 #include "Particle.h"
-#include "ParticleRenderer.h"
+#include "BillboardRenderer.h"
 
 class Fireworks {
 public:
@@ -16,6 +16,6 @@ public:
 
 private:
   std::vector<Particle> particles; // 存储所有粒子
-  ParticleRenderer renderer;
+  BillboardRenderer renderer;      // 使用 Billboard 渲染器
   int pattern = 0;                 // 接下来发射的烟花的爆炸图案,已发射的烟花不受影响, 0:无图案, 1:MSC
 };

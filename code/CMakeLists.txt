@@ -17,12 +17,20 @@ set(SOURCES
     src/Sky.cpp
     src/Skybox.cpp
     src/Ground.cpp
+    src/Lake.cpp
+    src/LakeShore.cpp
+    src/Mountain.cpp
+    src/Tree.cpp
+    src/Torii.cpp
+    src/Lantern.cpp
+    src/House.cpp
     src/Camera.cpp
     src/utils.cpp
     src/ObjLoader.cpp
     src/tiny_obj_loader.cc
     src/Particle.cpp
     src/ParticleRenderer.cpp
+    src/BillboardRenderer.cpp
     src/Fireworks.cpp
 )
 
