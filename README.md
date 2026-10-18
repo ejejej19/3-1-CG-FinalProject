@@ -10,7 +10,7 @@ Computer Graphics final project: a real-time OpenGL scene where fireworks launch
 
 ## Built on
 
-This project extends [Master7Sword/CG-FinalProject](https://github.com/Master7Sword/CG-FinalProject), an OpenGL fireworks particle system by students at Sun Yat-sen University (original report: [`tech_report/group_report.md`](tech_report/group_report.md)).
+This project extends [Master7Sword/CG-FinalProject](https://github.com/Master7Sword/CG-FinalProject), an OpenGL fireworks particle system by students at Sun Yat-sen University.
 
 The original provides the particle system (launch, burst, fade, trails), custom image-pattern explosions, the camera, skybox loading and sound effects. Everything listed under **What we added** was built by our team.
 
@@ -46,11 +46,15 @@ sudo apt install -y mesa-utils libgl1-mesa-dev libglew-dev libglfw3-dev build-es
 
 cd code
 mkdir build && cd build
+mkdir build && cd build
 cmake ..
 make
 ./firework
 ```
 
+macOS:
+
+```bash
 macOS:
 
 ```bash
@@ -67,11 +71,19 @@ If you see `MESA: error: ZINK: failed to choose pdev`, update the Mesa drivers:
 sudo add-apt-repository ppa:kisak/kisak-mesa
 sudo apt update && sudo apt upgrade
 ```
+**Controls:** WASD to move, arrow keys to look around.
+
+If you see `MESA: error: ZINK: failed to choose pdev`, update the Mesa drivers:
+
+```bash
+sudo add-apt-repository ppa:kisak/kisak-mesa
+sudo apt update && sudo apt upgrade
+```
 
 ## Docs
 
-- Our report: [`CG_FinalProject.pdf`](CG_FinalProject.pdf)
-
+- [CG_FinalProject_docs](CG_FinalProject.pdf)
+- [CG_FinalProject_slides](https://docs.google.com/presentation/d/1ajTstrQoip6OWA8NbVDGIMCe_c6_Sw5WBUqGMfSdses/edit?usp=sharing)
 
 ## Team
 
